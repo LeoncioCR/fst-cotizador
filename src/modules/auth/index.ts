@@ -6,4 +6,6 @@ export {
 
 export { LoginForm } from "./presentation/components/login-form";
 
+export { SetPasswordForm } from "./presentation/components/set-password-form";
+
 export type { AuthenticatedUser } from "./domain/authenticated-user";

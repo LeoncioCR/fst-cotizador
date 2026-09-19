@@ -1,0 +1,1 @@
+CREATE INDEX "profiles_full_name_idx" ON "profiles" USING btree ("full_name");

@@ -36,5 +36,9 @@ export const profiles = pgTable(
       .defaultNow(),
   },
 
-  (table) => [index("profiles_status_idx").on(table.status)],
+  (table) => [
+    index("profiles_status_idx").on(table.status),
+
+    index("profiles_full_name_idx").on(table.fullName),
+  ],
 );
