@@ -50,6 +50,34 @@
       "when": 1789867603590,
       "tag": "0006_seed_permissions",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789880896043,
+      "tag": "0007_company_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789880974764,
+      "tag": "0008_seed_company_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789881026917,
+      "tag": "0009_settings_rls",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789905281162,
+      "tag": "0010_company_assets_bucket",
+      "breakpoints": true
     }
   ]
 }
