@@ -10,6 +10,8 @@ import { UpdateQuotationSettingsUseCase } from "../application/use-cases/update-
 
 import { DrizzleSettingsRepository } from "./drizzle-settings.repository";
 
+import { SupabaseCompanyAssets } from "./supabase-company-assets";
+
 function repository() {
   return new DrizzleSettingsRepository();
 }
@@ -36,4 +38,8 @@ export function makeDeleteCompanyContactUseCase() {
 
 export function makeSettingsRepository() {
   return repository();
+}
+
+export function makeCompanyAssets() {
+  return new SupabaseCompanyAssets();
 }

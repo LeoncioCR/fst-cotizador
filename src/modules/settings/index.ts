@@ -5,6 +5,7 @@ export {
   makeCreateCompanyContactUseCase,
   makeDeleteCompanyContactUseCase,
   makeSettingsRepository,
+  makeCompanyAssets,
 } from "./infrastructure/settings-container";
 
 export type { CompanySettings } from "./domain/company-settings";

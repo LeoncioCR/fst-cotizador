@@ -2,38 +2,106 @@
 
 import { revalidatePath } from "next/cache";
 
+import { redirect } from "next/navigation";
+
 import { PERMISSIONS, requirePermission } from "@/modules/identity";
 
-import { makeSettingsRepository } from "../../infrastructure/settings-container";
+import { makeCompanyAssets, makeSettingsRepository } from "@/modules/settings";
 
-import { SupabaseCompanyAssets } from "../../infrastructure/supabase-company-assets";
+import { ApplicationError } from "@/shared/errors/application-error";
 
-const ALLOWED_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
+const MAX_LOGO_SIZE = 2 * 1024 * 1024;
 
-const MAX_SIZE = 2 * 1024 * 1024;
+const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp"] as const;
 
 export async function uploadCompanyLogoAction(formData: FormData) {
+  /*
+   * RN-CONF-003
+   *
+   * Solo usuarios con
+   * configuracion.editar
+   * pueden modificar el logo.
+   */
   const currentUser = await requirePermission(PERMISSIONS.SETTINGS.EDIT);
 
   const file = formData.get("logo");
 
-  if (!(file instanceof File) || file.size === 0) {
-    throw new Error("Seleccione un archivo.");
+  /*
+   * Validar existencia.
+   */
+  if (!(file instanceof File)) {
+    throw new ApplicationError("Debe seleccionar un archivo.", "INVALID_LOGO");
   }
 
-  if (!ALLOWED_TYPES.has(file.type)) {
-    throw new Error("Formato de logo no permitido.");
+  /*
+   * Archivo vacío.
+   */
+  if (file.size === 0) {
+    throw new ApplicationError(
+      "El archivo seleccionado está vacío.",
+      "INVALID_LOGO",
+    );
   }
 
-  if (file.size > MAX_SIZE) {
-    throw new Error("El logo no puede superar los 2 MB.");
+  /*
+   * Límite funcional:
+   * máximo 2 MB.
+   *
+   * Next.js puede aceptar 3 MB
+   * en la Server Action para dejar
+   * margen al multipart/form-data.
+   */
+  if (file.size > MAX_LOGO_SIZE) {
+    throw new ApplicationError(
+      "El logo no puede superar los 2 MB.",
+      "INVALID_LOGO_SIZE",
+    );
   }
 
-  const assets = new SupabaseCompanyAssets();
+  /*
+   * Tipos permitidos.
+   */
+  if (!ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {
+    throw new ApplicationError(
+      "El logo debe ser PNG, JPG, JPEG o WEBP.",
+      "INVALID_LOGO_TYPE",
+    );
+  }
 
-  const path = await assets.uploadLogo(file);
+  /*
+   * RN-CONF-007
+   *
+   * El archivo se guarda en
+   * Supabase Storage.
+   *
+   * PostgreSQL NO almacena
+   * el binario.
+   */
+  const assets = makeCompanyAssets();
 
-  await makeSettingsRepository().updateLogoPath(path, currentUser.id);
+  const logoPath = await assets.uploadLogo(file);
 
+  /*
+   * PostgreSQL únicamente guarda
+   * la referencia:
+   *
+   * company/logo
+   *
+   * También registramos quién
+   * realizó la modificación.
+   */
+  const repository = makeSettingsRepository();
+
+  await repository.updateLogoPath(logoPath, currentUser.id);
+
+  /*
+   * Refrescar configuración.
+   */
   revalidatePath("/configuracion");
+
+  /*
+   * Limpiar cualquier estado
+   * POST y volver a GET.
+   */
+  redirect("/configuracion");
 }
