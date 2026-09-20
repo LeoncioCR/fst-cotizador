@@ -26,6 +26,16 @@ import { UpdateRoleUseCase } from "../application/use-cases/update-role.use-case
 
 import { DrizzleRoleRepository } from "./drizzle-role.repository";
 
+import { AssignRolePermissionsUseCase } from "../application/use-cases/assign-role-permissions.use-case";
+
+import { GetRolePermissionsUseCase } from "../application/use-cases/get-role-permissions.use-case";
+
+import { GetRoleUseCase } from "../application/use-cases/get-role.use-case";
+
+import { ListPermissionsUseCase } from "../application/use-cases/list-permissions.use-case";
+
+import { DrizzlePermissionRepository } from "./drizzle-permission.repository";
+
 function dependencies() {
   return {
     auth: new SupabaseUserAuthAdmin(),
@@ -93,5 +103,29 @@ export function makeAssignUserRolesUseCase() {
     new DrizzleRoleRepository(),
 
     new DrizzleUserProfileRepository(),
+  );
+}
+
+export function makePermissionRepository() {
+  return new DrizzlePermissionRepository();
+}
+
+export function makeListPermissionsUseCase() {
+  return new ListPermissionsUseCase(new DrizzlePermissionRepository());
+}
+
+export function makeGetRolePermissionsUseCase() {
+  return new GetRolePermissionsUseCase(new DrizzlePermissionRepository());
+}
+
+export function makeGetRoleUseCase() {
+  return new GetRoleUseCase(new DrizzleRoleRepository());
+}
+
+export function makeAssignRolePermissionsUseCase() {
+  return new AssignRolePermissionsUseCase(
+    new DrizzleRoleRepository(),
+
+    new DrizzlePermissionRepository(),
   );
 }

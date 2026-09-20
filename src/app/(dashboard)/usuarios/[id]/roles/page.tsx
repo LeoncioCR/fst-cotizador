@@ -1,11 +1,11 @@
-import { redirect, notFound } from "next/navigation";
-
-import { requireRole } from "@/modules/identity/application/guards/require-role";
+import { notFound, redirect } from "next/navigation";
 
 import {
+  PERMISSIONS,
   makeGetUserRolesUseCase,
   makeGetUserUseCase,
   makeListRolesUseCase,
+  requirePermission,
 } from "@/modules/identity";
 
 import { assignUserRolesAction } from "@/modules/identity/presentation/actions/assign-user-roles.action";
@@ -18,7 +18,7 @@ interface PageProps {
 
 export default async function UserRolesPage({ params }: PageProps) {
   try {
-    await requireRole("administrador");
+    await requirePermission(PERMISSIONS.USERS.ASSIGN_ROLES);
   } catch {
     redirect("/dashboard");
   }

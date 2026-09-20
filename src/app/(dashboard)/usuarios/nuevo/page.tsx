@@ -1,11 +1,12 @@
 import { redirect } from "next/navigation";
 
-import { requireRole } from "@/modules/identity/application/guards/require-role";
+import { PERMISSIONS, requirePermission } from "@/modules/identity";
+
 import { InviteUserForm } from "@/modules/identity/presentation/components/invite-user-form";
 
 export default async function NewUserPage() {
   try {
-    await requireRole("administrador");
+    await requirePermission(PERMISSIONS.USERS.CREATE);
   } catch {
     redirect("/dashboard");
   }

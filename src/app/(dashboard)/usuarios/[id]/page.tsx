@@ -1,8 +1,13 @@
 import Link from "next/link";
+
 import { notFound, redirect } from "next/navigation";
 
-import { requireRole } from "@/modules/identity/application/guards/require-role";
-import { makeGetUserUseCase } from "@/modules/identity/infrastructure/identity-container";
+import {
+  PERMISSIONS,
+  makeGetUserUseCase,
+  requirePermission,
+} from "@/modules/identity";
+
 import { changeUserStatusAction } from "@/modules/identity/presentation/actions/change-user-status.action";
 
 interface UserDetailPageProps {
@@ -24,10 +29,44 @@ function formatDate(value: string | null) {
 }
 
 export default async function UserDetailPage({ params }: UserDetailPageProps) {
+  /*
+   * Acceso al detalle.
+   */
   try {
-    await requireRole("administrador");
+    await requirePermission(PERMISSIONS.USERS.VIEW);
   } catch {
     redirect("/dashboard");
+  }
+
+  /*
+   * Permisos de acciones.
+   */
+  let canEdit = false;
+  let canChangeStatus = false;
+  let canAssignRoles = false;
+
+  try {
+    await requirePermission(PERMISSIONS.USERS.EDIT);
+
+    canEdit = true;
+  } catch {
+    canEdit = false;
+  }
+
+  try {
+    await requirePermission(PERMISSIONS.USERS.CHANGE_STATUS);
+
+    canChangeStatus = true;
+  } catch {
+    canChangeStatus = false;
+  }
+
+  try {
+    await requirePermission(PERMISSIONS.USERS.ASSIGN_ROLES);
+
+    canAssignRoles = true;
+  } catch {
+    canAssignRoles = false;
   }
 
   const { id } = await params;
@@ -44,6 +83,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
     <main className="p-8">
       <div className="mx-auto max-w-4xl">
         {/* Navegación */}
+
         <Link
           href="/usuarios"
           className="text-sm font-medium text-slate-500 transition hover:text-slate-900"
@@ -52,6 +92,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         </Link>
 
         {/* Encabezado */}
+
         <div className="mt-6 flex flex-col gap-5 border-b border-slate-200 pb-6 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="text-sm font-medium text-slate-500">
@@ -77,6 +118,7 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         </div>
 
         {/* Información */}
+
         <section className="mt-8 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
           <div className="border-b border-slate-100 px-6 py-5">
             <h2 className="text-base font-semibold text-slate-900">
@@ -89,7 +131,6 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
           </div>
 
           <div className="grid sm:grid-cols-2">
-            {/* Estado */}
             <div className="border-b border-slate-100 px-6 py-5 sm:border-r">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Estado
@@ -100,7 +141,6 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
               </p>
             </div>
 
-            {/* Correo confirmado */}
             <div className="border-b border-slate-100 px-6 py-5">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Correo confirmado
@@ -111,7 +151,6 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
               </p>
             </div>
 
-            {/* Fecha registro */}
             <div className="border-b border-slate-100 px-6 py-5 sm:border-b-0 sm:border-r">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Fecha registro
@@ -122,7 +161,6 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
               </p>
             </div>
 
-            {/* Último acceso */}
             <div className="px-6 py-5">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-400">
                 Último acceso
@@ -136,41 +174,48 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
         </section>
 
         {/* Acciones */}
+
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
-          <Link
-            href={`/usuarios/${user.id}/roles`}
-            className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-          >
-            Administrar roles
-          </Link>
-
-          <Link
-            href={`/usuarios/${user.id}/editar`}
-            className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-          >
-            Editar
-          </Link>
-
-          <form action={changeUserStatusAction}>
-            <input type="hidden" name="userId" value={user.id} />
-
-            <input
-              type="hidden"
-              name="status"
-              value={isActive ? "inactive" : "active"}
-            />
-
-            <button
-              type="submit"
-              className={`inline-flex w-full items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition ${
-                isActive
-                  ? "border border-red-200 bg-white text-red-600 hover:bg-red-50"
-                  : "bg-slate-900 text-white hover:bg-slate-800"
-              }`}
+          {canAssignRoles && (
+            <Link
+              href={`/usuarios/${user.id}/roles`}
+              className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
             >
-              {isActive ? "Desactivar" : "Activar"}
-            </button>
-          </form>
+              Administrar roles
+            </Link>
+          )}
+
+          {canEdit && (
+            <Link
+              href={`/usuarios/${user.id}/editar`}
+              className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+            >
+              Editar
+            </Link>
+          )}
+
+          {canChangeStatus && (
+            <form action={changeUserStatusAction}>
+              <input type="hidden" name="userId" value={user.id} />
+
+              <input
+                type="hidden"
+                name="status"
+                value={isActive ? "inactive" : "active"}
+              />
+
+              <button
+                type="submit"
+                className={`inline-flex w-full items-center justify-center rounded-lg px-5 py-2.5 text-sm font-medium transition ${
+                  isActive
+                    ? "border border-red-200 bg-white text-red-600 hover:bg-red-50"
+                    : "bg-slate-900 text-white hover:bg-slate-800"
+                }`}
+              >
+                {isActive ? "Desactivar" : "Activar"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </main>

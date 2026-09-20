@@ -2,14 +2,16 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireRole } from "../../application/guards/require-role";
+import { requirePermission } from "../../application/guards/require-permission";
+
+import { PERMISSIONS } from "../../domain/permissions";
 
 import { makeAssignUserRolesUseCase } from "../../infrastructure/identity-container";
 
 import { assignRolesSchema } from "../schemas/role.schema";
 
 export async function assignUserRolesAction(formData: FormData) {
-  const currentUser = await requireRole("administrador");
+  const currentUser = await requirePermission(PERMISSIONS.USERS.ASSIGN_ROLES);
 
   const validation = assignRolesSchema.parse({
     userId: formData.get("userId"),
@@ -20,6 +22,9 @@ export async function assignUserRolesAction(formData: FormData) {
   await makeAssignUserRolesUseCase().execute({
     ...validation,
 
+    /*
+     * RN-ROL-009
+     */
     assignedBy: currentUser.id,
   });
 

@@ -2,9 +2,11 @@ import Link from "next/link";
 
 import { notFound, redirect } from "next/navigation";
 
-import { requireRole } from "@/modules/identity/application/guards/require-role";
-
-import { makeRoleRepository } from "@/modules/identity/infrastructure/identity-container";
+import {
+  PERMISSIONS,
+  makeRoleRepository,
+  requirePermission,
+} from "@/modules/identity";
 
 import { updateRoleAction } from "@/modules/identity/presentation/actions/update-role.action";
 
@@ -15,12 +17,8 @@ interface PageProps {
 }
 
 export default async function EditRolePage({ params }: PageProps) {
-  /*
-   * Solo administradores pueden
-   * administrar roles.
-   */
   try {
-    await requireRole("administrador");
+    await requirePermission(PERMISSIONS.ROLES.EDIT);
   } catch {
     redirect("/dashboard");
   }
@@ -36,11 +34,10 @@ export default async function EditRolePage({ params }: PageProps) {
   }
 
   /*
-   * RN-ROL-004
-   * RN-ROL-005
+   * Esta comprobación mejora la UX.
    *
-   * administrador y roles del sistema
-   * no pueden editarse.
+   * La protección real también se encuentra
+   * en UpdateRoleUseCase.
    */
   if (role.name === "administrador" || role.isSystem) {
     redirect("/roles");
@@ -48,7 +45,6 @@ export default async function EditRolePage({ params }: PageProps) {
 
   return (
     <main className="mx-auto max-w-2xl p-8">
-      {/* Volver */}
       <Link
         href="/roles"
         className="text-sm font-medium text-slate-500 transition hover:text-slate-900"
@@ -56,7 +52,6 @@ export default async function EditRolePage({ params }: PageProps) {
         ← Volver a roles
       </Link>
 
-      {/* Encabezado */}
       <div className="mt-6">
         <p className="text-sm font-medium text-slate-500">
           Administración de roles
@@ -71,14 +66,12 @@ export default async function EditRolePage({ params }: PageProps) {
         </p>
       </div>
 
-      {/* Formulario */}
       <form
         action={updateRoleAction}
         className="mt-8 space-y-6 rounded-xl border border-slate-200 bg-white p-6 shadow-sm"
       >
         <input type="hidden" name="id" value={role.id} />
 
-        {/* Nombre */}
         <div>
           <label
             htmlFor="displayName"
@@ -103,7 +96,6 @@ export default async function EditRolePage({ params }: PageProps) {
           </p>
         </div>
 
-        {/* Identificador actual */}
         <div>
           <label className="mb-2 block text-sm font-medium text-slate-700">
             Identificador actual
@@ -114,7 +106,6 @@ export default async function EditRolePage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Descripción */}
         <div>
           <label
             htmlFor="description"
@@ -133,7 +124,6 @@ export default async function EditRolePage({ params }: PageProps) {
           />
         </div>
 
-        {/* Acciones */}
         <div className="flex flex-col-reverse gap-3 border-t border-slate-200 pt-6 sm:flex-row sm:justify-end">
           <Link
             href="/roles"

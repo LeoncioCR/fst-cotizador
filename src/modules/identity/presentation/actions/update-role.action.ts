@@ -4,14 +4,16 @@ import { revalidatePath } from "next/cache";
 
 import { redirect } from "next/navigation";
 
-import { requireRole } from "../../application/guards/require-role";
+import { requirePermission } from "../../application/guards/require-permission";
+
+import { PERMISSIONS } from "../../domain/permissions";
 
 import { makeUpdateRoleUseCase } from "../../infrastructure/identity-container";
 
 import { roleFormSchema, roleIdSchema } from "../schemas/role.schema";
 
 export async function updateRoleAction(formData: FormData) {
-  await requireRole("administrador");
+  await requirePermission(PERMISSIONS.ROLES.EDIT);
 
   const id = roleIdSchema.parse(formData.get("id"));
 

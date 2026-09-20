@@ -2,20 +2,26 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireRole } from "../../application/guards/require-role";
+import { requirePermission } from "../../application/guards/require-permission";
+
+import { PERMISSIONS } from "../../domain/permissions";
+
 import { makeChangeUserStatusUseCase } from "../../infrastructure/identity-container";
+
 import { changeUserStatusSchema } from "../schemas/user.schema";
 
 export async function changeUserStatusAction(formData: FormData) {
-  await requireRole("administrador");
+  await requirePermission(PERMISSIONS.USERS.CHANGE_STATUS);
 
   const validation = changeUserStatusSchema.parse({
     userId: formData.get("userId"),
+
     status: formData.get("status"),
   });
 
   await makeChangeUserStatusUseCase().execute(validation);
 
   revalidatePath("/usuarios");
+
   revalidatePath(`/usuarios/${validation.userId}`);
 }

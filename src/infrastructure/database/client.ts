@@ -1,50 +1,58 @@
 import "server-only";
 
-import { drizzle } from "drizzle-orm/postgres-js";
+import {
+  drizzle,
+} from "drizzle-orm/postgres-js";
 
 import postgres from "postgres";
 
-const databaseUrl = process.env.DATABASE_URL;
+const databaseUrl =
+  process.env.DATABASE_URL;
 
 if (!databaseUrl) {
-  throw new Error("DATABASE_URL no está configurado");
+  throw new Error(
+    "DATABASE_URL no está configurado",
+  );
 }
 
-const isDevelopment = process.env.NODE_ENV === "development";
+const client = postgres(
+  databaseUrl,
+  {
+    /*
+     * No definimos max.
+     *
+     * postgres-js administrará
+     * automáticamente su pool.
+     *
+     * De esta forma:
+     *
+     * - una consulta simple utiliza
+     *   lo necesario;
+     *
+     * - Promise.all puede ejecutar
+     *   consultas concurrentes;
+     *
+     * - no forzamos todas las consultas
+     *   a pasar por una sola conexión.
+     */
 
-const client = postgres(databaseUrl, {
-  /*
-   * Desarrollo:
-   *
-   * Permitimos hasta 3 conexiones para
-   * que Promise.all y consultas paralelas
-   * no tengan que esperar una sola conexión.
-   *
-   * Producción:
-   *
-   * Conservamos una conexión por instancia,
-   * adecuada para un entorno serverless.
-   */
-  max: isDevelopment ? 3 : 1,
+    prepare: false,
 
-  /*
-   * Recomendado cuando trabajamos
-   * mediante poolers/serverless.
-   */
-  prepare: false,
+    ssl: "require",
 
-  ssl: "require",
+    /*
+     * Una conexión que queda sin utilizar
+     * puede liberarse después de este tiempo.
+     */
+    idle_timeout: 20,
 
-  /*
-   * Libera conexiones inactivas.
-   */
-  idle_timeout: 20,
+    /*
+     * Evita esperar demasiado si no
+     * se logra abrir una conexión.
+     */
+    connect_timeout: 10,
+  },
+);
 
-  /*
-   * No esperar indefinidamente
-   * una conexión.
-   */
-  connect_timeout: 10,
-});
-
-export const db = drizzle(client);
+export const db =
+  drizzle(client);
