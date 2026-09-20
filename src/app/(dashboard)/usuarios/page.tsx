@@ -11,10 +11,6 @@ import {
 import { changeUserStatusAction } from "@/modules/identity/presentation/actions/change-user-status.action";
 
 export default async function UsersPage() {
-  /*
-   * Para ingresar al módulo Usuarios
-   * únicamente necesita usuarios.ver.
-   */
   try {
     await requirePermission(PERMISSIONS.USERS.VIEW);
   } catch {
@@ -23,13 +19,6 @@ export default async function UsersPage() {
 
   const users = await makeListUsersUseCase().execute();
 
-  /*
-   * Permisos adicionales solo para UX.
-   *
-   * Los Server Actions vuelven a comprobarlos,
-   * por lo que ocultar botones no constituye
-   * la seguridad real.
-   */
   let canCreate = false;
   let canChangeStatus = false;
 
@@ -117,6 +106,7 @@ export default async function UsersPage() {
                   <div className="flex items-center gap-4">
                     <Link
                       href={`/usuarios/${user.id}`}
+                      prefetch={false}
                       className="font-medium text-slate-700 transition hover:text-slate-950"
                     >
                       Ver

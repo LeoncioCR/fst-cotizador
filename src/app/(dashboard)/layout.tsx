@@ -12,6 +12,8 @@ import { ApplicationError } from "@/shared/errors/application-error";
 
 interface DashboardLayoutProps {
   children: ReactNode;
+
+  modal: ReactNode;
 }
 
 async function can(permission: string): Promise<boolean> {
@@ -30,6 +32,7 @@ async function can(permission: string): Promise<boolean> {
 
 export default async function DashboardLayout({
   children,
+  modal,
 }: DashboardLayoutProps) {
   const result = await getCurrentUserCached();
 
@@ -126,8 +129,6 @@ export default async function DashboardLayout({
                 FST Cotizador
               </Link>
 
-              {/* Navegación móvil/tablet */}
-
               <nav className="hidden items-center gap-1 sm:flex lg:hidden">
                 <Link
                   href="/dashboard"
@@ -156,8 +157,6 @@ export default async function DashboardLayout({
               </nav>
             </div>
 
-            {/* Sesión */}
-
             <div className="flex items-center gap-4">
               <span className="hidden max-w-48 truncate text-sm text-slate-500 md:block">
                 {user.email}
@@ -177,6 +176,9 @@ export default async function DashboardLayout({
           <main className="min-w-0 flex-1">{children}</main>
         </div>
       </div>
+
+      {/* Parallel Route */}
+      {modal}
     </div>
   );
 }

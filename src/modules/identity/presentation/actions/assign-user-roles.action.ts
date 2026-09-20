@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
+import { redirect } from "next/navigation";
+
 import { requirePermission } from "../../application/guards/require-permission";
 
 import { PERMISSIONS } from "../../domain/permissions";
@@ -22,13 +24,14 @@ export async function assignUserRolesAction(formData: FormData) {
   await makeAssignUserRolesUseCase().execute({
     ...validation,
 
-    /*
-     * RN-ROL-009
-     */
     assignedBy: currentUser.id,
   });
+
+  revalidatePath("/usuarios");
 
   revalidatePath(`/usuarios/${validation.userId}`);
 
   revalidatePath(`/usuarios/${validation.userId}/roles`);
+
+  redirect(`/usuarios/${validation.userId}`);
 }

@@ -27,9 +27,6 @@ async function can(permission: string): Promise<boolean> {
 }
 
 export default async function RolesPage() {
-  /*
-   * Acceso al módulo.
-   */
   try {
     await requirePermission(PERMISSIONS.ROLES.VIEW);
   } catch {
@@ -51,7 +48,6 @@ export default async function RolesPage() {
 
   return (
     <main className="p-8">
-      {/* Encabezado */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-semibold text-slate-900">Roles</h1>
@@ -71,7 +67,6 @@ export default async function RolesPage() {
         )}
       </div>
 
-      {/* Tabla */}
       <div className="mt-8 overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[850px] text-sm">
           <thead className="bg-slate-50">
@@ -137,27 +132,26 @@ export default async function RolesPage() {
 
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-4">
-                      {/* Permisos */}
                       {canAssignPermissions && (
                         <Link
                           href={`/roles/${role.id}/permisos`}
+                          prefetch={false}
                           className="font-medium text-slate-700 transition hover:text-slate-950"
                         >
                           {isProtected ? "Ver permisos" : "Permisos"}
                         </Link>
                       )}
 
-                      {/* Editar */}
                       {canEdit && !isProtected && (
                         <Link
                           href={`/roles/${role.id}/editar`}
+                          prefetch={false}
                           className="font-medium text-slate-700 transition hover:text-slate-950"
                         >
                           Editar
                         </Link>
                       )}
 
-                      {/* Eliminar */}
                       {canDelete && !isProtected && (
                         <form action={deleteRoleAction}>
                           <input type="hidden" name="id" value={role.id} />

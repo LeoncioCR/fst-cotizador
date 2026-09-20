@@ -2,9 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 
-import { PERMISSIONS } from "../../domain/permissions";
+import { redirect } from "next/navigation";
 
 import { requirePermission } from "../../application/guards/require-permission";
+
+import { PERMISSIONS } from "../../domain/permissions";
 
 import { makeAssignRolePermissionsUseCase } from "../../infrastructure/identity-container";
 
@@ -30,4 +32,6 @@ export async function assignRolePermissionsAction(formData: FormData) {
   revalidatePath("/roles");
 
   revalidatePath(`/roles/${validation.roleId}/permisos`);
+
+  redirect("/roles");
 }

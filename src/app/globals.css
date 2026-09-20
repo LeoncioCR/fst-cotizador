@@ -24,3 +24,40 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@keyframes modal-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-backdrop-enter {
+  animation: modal-backdrop-in 160ms ease-out;
+}
+
+.modal-panel-enter {
+  animation: modal-panel-in 180ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop-enter,
+  .modal-panel-enter {
+    animation: none;
+  }
+}
