@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
+import { redirect } from "next/navigation";
+
 import { requirePermission } from "../../application/guards/require-permission";
 
 import { PERMISSIONS } from "../../domain/permissions";
@@ -11,23 +13,22 @@ import { makeDeleteRoleUseCase } from "../../infrastructure/identity-container";
 import { roleIdSchema } from "../schemas/role.schema";
 
 export async function deleteRoleAction(formData: FormData) {
-  /*
-   * Autorización:
-   * ¿el usuario puede intentar eliminar roles?
-   */
   await requirePermission(PERMISSIONS.ROLES.DELETE);
 
   const id = roleIdSchema.parse(formData.get("id"));
 
   /*
-   * Regla de negocio:
+   * DeleteRoleUseCase sigue
+   * protegiendo:
    *
-   * El UseCase seguirá comprobando:
-   * - administrador no eliminable
-   * - roles de sistema no eliminables
-   * - roles con usuarios no eliminables
+   * - administrador
+   * - roles del sistema
+   * - roles con usuarios
    */
+
   await makeDeleteRoleUseCase().execute(id);
 
   revalidatePath("/roles");
+
+  redirect("/roles");
 }

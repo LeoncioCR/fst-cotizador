@@ -10,11 +10,9 @@ type ModalSize = "sm" | "md" | "lg" | "xl";
 
 interface ModalProps {
   title: string;
-
   description?: string;
-
   children: ReactNode;
-
+  closeHref: string;
   size?: ModalSize;
 }
 
@@ -29,56 +27,59 @@ export function Modal({
   title,
   description,
   children,
+  closeHref,
   size = "md",
 }: ModalProps) {
   const router = useRouter();
 
   const titleId = useId();
 
-  const panelRef = useRef<HTMLDivElement>(null);
+  const modalRef = useRef<HTMLDivElement>(null);
 
   const closeModal = useCallback(() => {
-    router.back();
-  }, [router]);
+    router.replace(closeHref, {
+      scroll: false,
+    });
+  }, [router, closeHref]);
 
   useEffect(() => {
     const previousOverflow = document.body.style.overflow;
 
     document.body.style.overflow = "hidden";
 
-    panelRef.current?.focus();
+    modalRef.current?.focus();
 
-    function handleKeyDown(event: KeyboardEvent) {
+    function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         closeModal();
       }
     }
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", onKeyDown);
 
     return () => {
       document.body.style.overflow = previousOverflow;
 
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", onKeyDown);
     };
   }, [closeModal]);
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-end justify-center p-0 sm:items-center sm:p-6">
-      {/* Backdrop */}
+    <div className="fixed inset-0 z-[100] flex items-end justify-center sm:items-center sm:p-6">
+      {/* Fondo */}
 
       <button
         type="button"
-        aria-label="Cerrar modal"
         tabIndex={-1}
+        aria-label="Cerrar modal"
         onClick={closeModal}
         className="modal-backdrop-enter absolute inset-0 bg-slate-950/45 backdrop-blur-[2px]"
       />
 
-      {/* Panel */}
+      {/* Modal */}
 
       <div
-        ref={panelRef}
+        ref={modalRef}
         tabIndex={-1}
         role="dialog"
         aria-modal="true"
@@ -87,7 +88,7 @@ export function Modal({
       >
         {/* Header */}
 
-        <header className="flex shrink-0 items-start justify-between gap-6 border-b border-slate-200 bg-white px-5 py-5 sm:px-6">
+        <header className="flex shrink-0 items-start justify-between gap-6 border-b border-slate-200 px-5 py-5 sm:px-6">
           <div className="min-w-0">
             <h2
               id={titleId}
@@ -103,8 +104,8 @@ export function Modal({
 
           <button
             type="button"
-            aria-label="Cerrar"
             onClick={closeModal}
+            aria-label="Cerrar"
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-2xl leading-none text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
             ×

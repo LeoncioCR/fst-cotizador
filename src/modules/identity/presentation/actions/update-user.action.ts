@@ -27,7 +27,5 @@ export async function updateUserAction(formData: FormData) {
 
   revalidatePath("/usuarios");
 
-  revalidatePath(`/usuarios/${validation.id}`);
-
-  redirect(`/usuarios/${validation.id}`);
+  redirect("/usuarios");
 }

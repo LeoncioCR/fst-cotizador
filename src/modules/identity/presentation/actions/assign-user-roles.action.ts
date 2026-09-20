@@ -29,9 +29,5 @@ export async function assignUserRolesAction(formData: FormData) {
 
   revalidatePath("/usuarios");
 
-  revalidatePath(`/usuarios/${validation.userId}`);
-
-  revalidatePath(`/usuarios/${validation.userId}/roles`);
-
-  redirect(`/usuarios/${validation.userId}`);
+  redirect("/usuarios");
 }

@@ -2,6 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 
+import { redirect } from "next/navigation";
+
 import { requirePermission } from "../../application/guards/require-permission";
 
 import { PERMISSIONS } from "../../domain/permissions";
@@ -23,5 +25,5 @@ export async function changeUserStatusAction(formData: FormData) {
 
   revalidatePath("/usuarios");
 
-  revalidatePath(`/usuarios/${validation.userId}`);
+  redirect("/usuarios");
 }
