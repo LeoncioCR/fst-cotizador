@@ -1,13 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-
 import { redirect } from "next/navigation";
 
-import { requireBootstrapAdmin } from "../../application/guards/require-bootstrap-admin";
-
+import { requireRole } from "../../application/guards/require-role";
 import { makeInviteUserUseCase } from "../../infrastructure/identity-container";
-
 import { inviteUserSchema } from "../schemas/user.schema";
 
 export interface InviteUserState {
@@ -24,7 +21,7 @@ export async function inviteUserAction(
   formData: FormData,
 ): Promise<InviteUserState> {
   try {
-    await requireBootstrapAdmin();
+    await requireRole("administrador");
   } catch {
     return {
       error: "No tienes autorización para realizar esta acción.",
@@ -33,7 +30,6 @@ export async function inviteUserAction(
 
   const validation = inviteUserSchema.safeParse({
     fullName: formData.get("fullName"),
-
     email: formData.get("email"),
   });
 

@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { redirect } from "next/navigation";
 
-import { requireBootstrapAdmin } from "@/modules/identity/application/guards/require-bootstrap-admin";
+import { requireRole } from "@/modules/identity/application/guards/require-role";
 
 import { makeListUsersUseCase } from "@/modules/identity/infrastructure/identity-container";
 
@@ -10,7 +10,7 @@ import { changeUserStatusAction } from "@/modules/identity/presentation/actions/
 
 export default async function UsersPage() {
   try {
-    await requireBootstrapAdmin();
+    await requireRole("administrador");
   } catch {
     redirect("/dashboard");
   }

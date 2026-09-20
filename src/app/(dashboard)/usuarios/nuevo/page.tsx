@@ -1,12 +1,11 @@
 import { redirect } from "next/navigation";
 
-import { requireBootstrapAdmin } from "@/modules/identity/application/guards/require-bootstrap-admin";
-
+import { requireRole } from "@/modules/identity/application/guards/require-role";
 import { InviteUserForm } from "@/modules/identity/presentation/components/invite-user-form";
 
 export default async function NewUserPage() {
   try {
-    await requireBootstrapAdmin();
+    await requireRole("administrador");
   } catch {
     redirect("/dashboard");
   }
@@ -14,7 +13,6 @@ export default async function NewUserPage() {
   return (
     <main className="p-8">
       <div className="mx-auto max-w-3xl">
-        {/* Encabezado */}
         <div>
           <p className="text-sm font-medium text-slate-500">
             Administración de usuarios
@@ -30,7 +28,6 @@ export default async function NewUserPage() {
           </p>
         </div>
 
-        {/* Formulario */}
         <section className="mt-8 rounded-xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
           <InviteUserForm />
         </section>

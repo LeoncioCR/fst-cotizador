@@ -2,14 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 
-import { requireBootstrapAdmin } from "../../application/guards/require-bootstrap-admin";
-
+import { requireRole } from "../../application/guards/require-role";
 import { makeChangeUserStatusUseCase } from "../../infrastructure/identity-container";
-
 import { changeUserStatusSchema } from "../schemas/user.schema";
 
 export async function changeUserStatusAction(formData: FormData) {
-  await requireBootstrapAdmin();
+  await requireRole("administrador");
 
   const validation = changeUserStatusSchema.parse({
     userId: formData.get("userId"),

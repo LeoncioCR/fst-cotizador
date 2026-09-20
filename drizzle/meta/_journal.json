@@ -22,6 +22,20 @@
       "when": 1789838635176,
       "tag": "0002_profiles_full_name_index",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1789853310623,
+      "tag": "0003_identity_roles",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1789853425842,
+      "tag": "0004_seed_system_roles",
+      "breakpoints": true
     }
   ]
 }

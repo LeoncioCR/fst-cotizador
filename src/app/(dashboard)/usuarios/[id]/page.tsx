@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
-import { requireBootstrapAdmin } from "@/modules/identity/application/guards/require-bootstrap-admin";
+import { requireRole } from "@/modules/identity/application/guards/require-role";
 import { makeGetUserUseCase } from "@/modules/identity/infrastructure/identity-container";
 import { changeUserStatusAction } from "@/modules/identity/presentation/actions/change-user-status.action";
 
@@ -25,7 +25,7 @@ function formatDate(value: string | null) {
 
 export default async function UserDetailPage({ params }: UserDetailPageProps) {
   try {
-    await requireBootstrapAdmin();
+    await requireRole("administrador");
   } catch {
     redirect("/dashboard");
   }
@@ -137,6 +137,13 @@ export default async function UserDetailPage({ params }: UserDetailPageProps) {
 
         {/* Acciones */}
         <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+          <Link
+            href={`/usuarios/${user.id}/roles`}
+            className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
+          >
+            Administrar roles
+          </Link>
+
           <Link
             href={`/usuarios/${user.id}/editar`}
             className="inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-5 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
