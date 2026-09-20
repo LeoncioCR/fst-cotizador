@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import Link from "next/link";
+
 import { redirect } from "next/navigation";
 
 import { getCurrentUserCached } from "@/modules/auth";
@@ -30,12 +31,6 @@ async function can(permission: string): Promise<boolean> {
 export default async function DashboardLayout({
   children,
 }: DashboardLayoutProps) {
-  /*
-   * =========================
-   * USUARIO AUTENTICADO
-   * =========================
-   */
-
   const result = await getCurrentUserCached();
 
   if (!result.success) {
@@ -48,32 +43,33 @@ export default async function DashboardLayout({
 
   const user = result.data;
 
-  /*
-   * =========================
-   * PERMISOS DEL SIDEBAR
-   * =========================
-   */
+  const [
+    canViewDashboard,
+    canViewUsers,
+    canViewRoles,
+    canViewClients,
+    canViewSettings,
+  ] = await Promise.all([
+    can(PERMISSIONS.DASHBOARD.VIEW),
 
-  const [canViewDashboard, canViewUsers, canViewRoles, canViewSettings] =
-    await Promise.all([
-      can(PERMISSIONS.DASHBOARD.VIEW),
+    can(PERMISSIONS.USERS.VIEW),
 
-      can(PERMISSIONS.USERS.VIEW),
+    can(PERMISSIONS.ROLES.VIEW),
 
-      can(PERMISSIONS.ROLES.VIEW),
+    can(PERMISSIONS.CLIENTS.VIEW),
 
-      can(PERMISSIONS.SETTINGS.VIEW),
-    ]);
+    can(PERMISSIONS.SETTINGS.VIEW),
+  ]);
 
   return (
     <div className="min-h-screen bg-slate-50">
       <div className="flex min-h-screen">
         {/* =========================
-            SIDEBAR DESKTOP
+            SIDEBAR
         ========================== */}
 
         <aside className="hidden w-64 shrink-0 flex-col border-r border-slate-200 bg-white lg:flex">
-          {/* Logo / Nombre */}
+          {/* Marca */}
 
           <div className="border-b border-slate-200 px-6 py-5">
             <Link href="/dashboard" className="block">
@@ -85,9 +81,7 @@ export default async function DashboardLayout({
             </Link>
           </div>
 
-          {/* =========================
-              NAVEGACIÓN
-          ========================== */}
+          {/* Navegación */}
 
           <nav className="flex-1 overflow-y-auto p-4">
             <div className="space-y-1">
@@ -117,11 +111,18 @@ export default async function DashboardLayout({
                   Roles
                 </Link>
               )}
+
+              {canViewClients && (
+                <Link
+                  href="/clientes"
+                  className="block rounded-lg px-4 py-2.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-slate-950"
+                >
+                  Clientes
+                </Link>
+              )}
             </div>
 
-            {/* =========================
-                ADMINISTRACIÓN
-            ========================== */}
+            {/* Administración */}
 
             {canViewSettings && (
               <div className="mt-6">
@@ -141,9 +142,7 @@ export default async function DashboardLayout({
             )}
           </nav>
 
-          {/* =========================
-              USUARIO / SESIÓN
-          ========================== */}
+          {/* Sesión */}
 
           <div className="border-t border-slate-200 p-4">
             <div className="mb-4 rounded-xl bg-slate-50 px-3 py-3">
@@ -168,17 +167,11 @@ export default async function DashboardLayout({
         </aside>
 
         {/* =========================
-            CONTENIDO PRINCIPAL
+            PRINCIPAL
         ========================== */}
 
         <div className="flex min-w-0 flex-1 flex-col">
-          {/* =========================
-              HEADER
-          ========================== */}
-
           <header className="sticky top-0 z-40 flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white/95 px-4 backdrop-blur sm:px-6 lg:px-8">
-            {/* Navegación móvil/tablet */}
-
             <div className="flex min-w-0 items-center gap-4">
               <Link
                 href="/dashboard"
@@ -186,6 +179,8 @@ export default async function DashboardLayout({
               >
                 FST Cotizador
               </Link>
+
+              {/* Tablet */}
 
               <nav className="hidden items-center gap-1 sm:flex lg:hidden">
                 {canViewDashboard && (
@@ -212,6 +207,15 @@ export default async function DashboardLayout({
                     className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                   >
                     Roles
+                  </Link>
+                )}
+
+                {canViewClients && (
+                  <Link
+                    href="/clientes"
+                    className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+                  >
+                    Clientes
                   </Link>
                 )}
 
@@ -247,10 +251,6 @@ export default async function DashboardLayout({
               </form>
             </div>
           </header>
-
-          {/* =========================
-              CONTENIDO
-          ========================== */}
 
           <main className="min-w-0 flex-1">{children}</main>
         </div>

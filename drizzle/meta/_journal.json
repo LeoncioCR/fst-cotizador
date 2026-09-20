@@ -78,6 +78,20 @@
       "when": 1789905281162,
       "tag": "0010_company_assets_bucket",
       "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1789918381469,
+      "tag": "0011_clients",
+      "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1789918444281,
+      "tag": "0012_clients_rls",
+      "breakpoints": true
     }
   ]
 }

@@ -1,0 +1,5 @@
+ALTER TABLE public.clients
+ENABLE ROW LEVEL SECURITY;
+
+ALTER TABLE public.client_contacts
+ENABLE ROW LEVEL SECURITY;
